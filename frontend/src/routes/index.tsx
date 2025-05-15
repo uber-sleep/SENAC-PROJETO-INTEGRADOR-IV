@@ -5,20 +5,22 @@ import { DefaultLayout } from "./layouts/Default";
 import { CreateProduct } from "../pages/Product/Create";
 import { PublicRoute } from "./components/PublicRoute";
 import { SignIn, SignUp } from "../pages/Auth";
+import { useAuth } from "@contexts/Auth";
 
 export const Router = () => {
-  const isAuthenticated = true;
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
   return (
     <Routes>
       {isAuthenticated ? (
-        <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
+        <Route element={<PrivateRoute />}>
           <Route element={<DefaultLayout />}>
             <Route path={"products/create"} element={<CreateProduct />} />
           </Route>
         </Route>
       ) : (
-        <Route element={<PublicRoute isAuthenticated={isAuthenticated} />}>
+        <Route element={<PublicRoute />}>
           <Route path={"sign-in"} element={<SignIn />} />
           <Route path={"sign-up"} element={<SignUp />} />
         </Route>

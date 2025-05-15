@@ -1,8 +1,13 @@
+import { useAuth } from "@contexts/Auth";
 import { Navigate, Outlet } from "react-router";
 
-type Props = {
-  isAuthenticated: boolean;
-};
+export const PublicRoute = () => {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
 
-export const PublicRoute = ({ isAuthenticated }: Props) =>
-  isAuthenticated ? <Navigate to="/products/create" replace /> : <Outlet />;
+  if (isAuthenticated) {
+    return <Navigate to="/products/create" replace />;
+  }
+
+  return <Outlet />;
+};
