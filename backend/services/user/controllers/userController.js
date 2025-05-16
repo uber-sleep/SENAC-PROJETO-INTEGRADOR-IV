@@ -5,7 +5,8 @@ const { validateUpdateFields } = require('../../../shared/utils/validateUpdateFi
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: { exclude: ['password'] },
+            attributes: ['id', 'name', 'email', 'role'],
+            limit: 100,          
             order: [['createdAt', 'DESC']] 
         });
 
@@ -30,19 +31,8 @@ exports.getUserById = async (req, res) => {
         }
 
         const user = await User.findByPk(req.params.id, {
-            attributes: { exclude: ['password'] },
-            include: [
-                {
-                    model: Consumer,
-                    required: false,
-                },
-                {
-                    model: Producer,
-                    required: false,
-                    attributes: ['cpf_cnpj', 'certificate_id']
-                }
-            ]
-        });
+            attributes: ['id', 'name', 'email', 'phone', 'address'],
+          });
 
         if (!user) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -60,14 +50,17 @@ exports.getUserById = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
+        if (req.user.id !== parseInt(req.params.id)) {
+            return res.status(403).json({ error: 'Você só pode editar seu próprio perfil' });
+        }
+
         const { valid, error } = validateUpdateFields(req.body);
         if (!valid) return res.status(400).json({ error });
 
         const [updatedCount] = await User.update(req.body, {
             where: { id: req.params.id },
-            fields: ['name', 'phone', 'address'],
-            individualHooks: true
-        });
+            fields: ['name', 'phone', 'address'] 
+          });
 
         if (updatedCount === 0) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -92,20 +85,21 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const userId = parseInt(req.params.id, 10);
+
+        if (req.user.id !== userId) {
+            return res.status(403).json({ error: 'Você só pode deletar sua própria conta' });
+        }
+
+        const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
 
-        const deleted = await User.destroy({
-            where: { id: req.params.id },
-            individualHooks: true
-        });
+        // Exclusão suave
+        await User.update({ active: false }, { where: { id: userId } });
 
-        res.json({
-            message: 'Usuário deletado com sucesso',
-            deletedCount: deleted
-        });
+        res.json({ message: 'Conta desativada com sucesso' });
     } catch (error) {
         console.error('Erro em deleteUser:', error);
 
@@ -117,7 +111,7 @@ exports.deleteUser = async (req, res) => {
 
         const { status, message } = handleSequelizeError(error);
         res.status(status || 500).json({
-            error: message || 'Erro interno ao excluir usuário'
+            error: message || 'Erro interno ao desativar usuário'
         });
     }
-};
+};  
