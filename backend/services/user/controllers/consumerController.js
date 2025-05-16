@@ -1,6 +1,6 @@
-const { Consumer, Producer, User } = require('../models');
+const { Producer, User } = require('../models');
 const { handleSequelizeError } = require('../../../shared/utils/sequelizeErrorHandler');
-const { validateCoordinates } = require('../../../shared/utils/validators/coordinatesValidator'); 
+const { validateCoordinates } = require('../../../shared/utils/validators/coordinatesValidator');
 
 exports.findNearbyProducers = async (req, res) => {
     try {
@@ -10,18 +10,15 @@ exports.findNearbyProducers = async (req, res) => {
             if (!latitude || !longitude) {
                 return res.status(400).json({
                     error: 'Ambas coordenadas (latitude e longitude) devem ser fornecidas',
-                    example: '/producers/nearby?latitude=-23.5505&longitude=-46.6333&radius=5'
+                    example: '/nearby-producers?latitude=-23.5505&longitude=-46.6333&radius=5'
                 });
             }
 
             if (!validateCoordinates(latitude, longitude)) {
                 return res.status(400).json({
                     error: 'Coordenadas inválidas',
-                    required_format: 'Decimal com ponto ex: -23.561399',
-                    valid_ranges: {
-                        latitude: '-90 a 90',
-                        longitude: '-180 a 180'
-                    }
+                    required_format: 'Decimal com ponto (ex: -23.561399)',
+                    valid_ranges: { latitude: '-90 a 90', longitude: '-180 a 180' }
                 });
             }
 
@@ -33,59 +30,52 @@ exports.findNearbyProducers = async (req, res) => {
             }
         }
 
-        // Lógica de consulta simulada
         const producers = await Producer.findAll({
-            where: {
-                // simulação
-                '$User.address$': {
-                    [Sequelize.Op.ne]: null
-                }
-            },
             include: [{
                 model: User,
                 attributes: ['id', 'name', 'address', 'phone'],
+                where: { active: true }, 
                 required: true
             }],
-            limit: 50,
-            order: [[User, 'address', 'ASC']]
+            limit: 50, 
+            order: [[User, 'name', 'ASC']] 
         });
 
         const results = producers.map(producer => ({
             id: producer.id,
             name: producer.User.name,
             address: producer.User.address,
+            phone: producer.User.phone,
             distance: latitude && longitude
-                ? `${Math.random() * radius} km` // simulação
+                ? `${(Math.random() * radius).toFixed(1)} km`
                 : 'N/D'
         }));
 
         if (results.length === 0) {
             return res.status(404).json({
                 message: 'Nenhum produtor encontrado',
-                suggestion: 'Tente ampliar o raio de busca'
+                suggestion: latitude && longitude
+                    ? 'Amplie o raio de busca'
+                    : 'Cadastre produtores na plataforma'
             });
         }
 
         res.json({
-            search_parameters: {
+            search_params: {
                 latitude: latitude || 'Não informada',
                 longitude: longitude || 'Não informada',
                 radius: `${radius} km`
             },
             count: results.length,
-            results
+            producers: results
         });
 
     } catch (error) {
-        console.error('Erro na busca de produtores:', {
-            params: req.query,
-            error: error.stack
-        });
-
+        console.error('Erro em findNearbyProducers:', error);
         const { status, message } = handleSequelizeError(error);
         res.status(status || 500).json({
-            error: message || 'Falha na busca de produtores',
-            troubleshooting: 'Verifique os parâmetros ou tente novamente mais tarde'
+            error: message || 'Erro ao buscar produtores',
+            recovery: 'Tente novamente mais tarde'
         });
     }
 };
