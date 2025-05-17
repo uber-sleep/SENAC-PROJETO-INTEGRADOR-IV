@@ -47,22 +47,29 @@ exports.updateStock = async (req, res) => {
             });
         }
 
-        const [updated] = await Product.update(
-            { quantity },
-            { where: { id }, individualHooks: true }
-        );
+        const product = await Product.findByPk(id);
 
-        if (!updated) {
+        if (!product) {
             return res.status(404).json({ error: 'Produto não encontrado' });
         }
 
-        const updatedProduct = await Product.findByPk(id, {
-            attributes: ['id', 'name', 'quantity']
-        });
+        if (product.producerId !== req.producer.id) {
+            return res.status(403).json({
+                error: 'Acesso negado',
+                details: 'Você não é o produtor deste item'
+            });
+        }
+
+        product.quantity = quantity;
+        await product.save();
 
         return res.json({
             message: 'Estoque atualizado com sucesso',
-            product: updatedProduct
+            product: {
+                id: product.id,
+                name: product.name,
+                quantity: product.quantity
+            }
         });
 
     } catch (error) {
