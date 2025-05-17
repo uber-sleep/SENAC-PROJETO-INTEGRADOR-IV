@@ -1,4 +1,10 @@
-import { Button } from "@components/ui/button";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useNavigate } from "react-router";
+
+import { useAuth } from "@contexts/Auth";
+
 import {
   Card,
   CardContent,
@@ -7,17 +13,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@components/ui/form";
 import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
-import { useAuth } from "@contexts/Auth";
-import { useNavigate } from "react-router";
+import { Button } from "@components/ui/button";
+import { useForm } from "react-hook-form";
+
+type FormSchema = z.infer<typeof formSchema>;
+
+const formSchema = z.object({
+  email: z
+    .string()
+    .min(1, "* O e-mail é obrigatório")
+    .email("* O formato do e-mail é inválido")
+    .trim(),
+  password: z
+    .string()
+    .min(1, "* A senha é obrigatória")
+    .refine((value) => value.trim().length > 0, {
+      message: "A senha não pode conter apenas espaços.",
+    }),
+});
 
 export const SignIn = () => {
-  const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { signIn } = useAuth();
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const { handleSubmit, control } = form;
 
-  const handleSignIn = async () => {
-    await signIn({ email: "bruno.duarte314@gmail.com", password: "123" });
+  console.log("123123");
+
+  const handleSignIn = async (values: FormSchema) => {
+    console.log(values);
+
+    await signIn(values);
   };
 
   const handleSignUp = () => {
@@ -29,36 +70,64 @@ export const SignIn = () => {
       <div className="w-full max-w-lg">
         <Card className="shadow-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Bem vindo</CardTitle>
-            <CardDescription>
-              Produtos orgânicos, do produtor direto para sua mesa!
-            </CardDescription>
+            <CardTitle className="text-2xl">Acesse sua conta</CardTitle>
+            <CardDescription>Entre com suas credenciais para continuar.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
-            <form>
-              <div className="grid w-full items-center gap-4 ">
-                <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    placeholder="Digite seu e-mail"
-                    type="email"
-                  />
-                </div>
-                <div className="flex flex-col space-y-1.5">
-                  <Label htmlFor="password">Senha</Label>
-                  <Input
-                    id="password"
-                    placeholder="Digite sua senha"
-                    type="password"
-                  />
-                </div>
-              </div>
-            </form>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={handleSubmit(handleSignIn)} className="space-y-5">
+                <div className="grid w-full items-center gap-4 ">
+                  <div className="flex flex-col space-y-1.5">
+                    <FormField
+                      control={control}
+                      name="email"
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="email">E-mail</FormLabel>
 
-            <Button className="w-full" onClick={handleSignIn}>
-              Entrar
-            </Button>
+                          <FormControl>
+                            <Input
+                              id="email"
+                              placeholder="Digite seu e-mail"
+                              {...field}
+                            />
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <FormField
+                      control={control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel htmlFor="password">Senha</FormLabel>
+
+                          <FormControl>
+                            <Input
+                              id="password"
+                              placeholder="Digite sua senha"
+                              type="password"
+                              {...field}
+                            />
+                          </FormControl>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <Button className="w-full" type="submit">
+                  Entrar
+                </Button>
+              </form>
+            </Form>
           </CardContent>
 
           <div className="px-8 flex justify-center items-center gap-4">
