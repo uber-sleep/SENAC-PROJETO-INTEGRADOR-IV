@@ -1,10 +1,12 @@
+import { useAuth } from "@contexts/Auth";
+
 export const Header = () => {
-  const handleLogout = () => {};
+  const { signOut } = useAuth();
 
   return (
     <div>
       <nav>
-        <button onClick={handleLogout}>Sair</button>
+        <button onClick={signOut}>Sair</button>
       </nav>
     </div>
   );
