@@ -31,6 +31,9 @@
       "@components/*": [
         "./src/components/*"
       ],
+      "@constants": [
+        "./src/constants"
+      ],
       "@contexts": [
         "./src/contexts"
       ],
@@ -61,8 +64,8 @@
       "@storage/*": [
         "./src/storage/*"
       ],
-      "@utils": [
-        "./src/utils"
+      "@utils/*": [
+        "./src/utils/*"
       ],
     }
   },
