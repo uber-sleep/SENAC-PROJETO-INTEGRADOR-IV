@@ -3,8 +3,8 @@ const router = express.Router();
 const { body } = require('express-validator');
 const producerController = require('../controllers/producerController');
 const authMiddleware = require('../../../middlewares/authMiddleware');
-const producerMiddleware = require('../middlewares/producerMiddleware');
-const { validateDocument } = require('../../../shared/utils/documentValidator');
+const producerMiddleware = require('../../../middlewares/producerMiddleware');
+const { validateDocument } = require('../../../utils/documentValidator');
 
 router.use(authMiddleware, producerMiddleware);
 

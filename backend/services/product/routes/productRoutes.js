@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { param, body, query } = require('express-validator');
-const productController = require('../controllers/productController');
+const productController = require('../controller/productController');
 const authMiddleware = require('../../../middlewares/authMiddleware');
-const producerMiddleware = require('../../producer/middlewares/producerMiddleware');
+const producerMiddleware = require('../../../middlewares/producerMiddleware');
 
 router.get(
     '/category/:category',

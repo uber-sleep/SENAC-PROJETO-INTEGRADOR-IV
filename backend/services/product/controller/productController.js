@@ -1,7 +1,6 @@
-const { Product } = require('../models');
-const { handleSequelizeError } = require('../../../shared/utils/sequelizeErrorHandler');
+const { Product } = require('../models/Product');
 
-exports.listByCategory = async (req, res) => {
+exports.listByCategory = async (req, res, next) => {
     try {
         const { category } = req.params;
         const { page = 1, pageSize = 20 } = req.query;
@@ -29,35 +28,47 @@ exports.listByCategory = async (req, res) => {
 
     } catch (error) {
         console.log('Erro ao listar produtos:', { error: error.stack });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Erro na busca' });
+        error.clientMessage = 'Falha ao listar produtos';
+        error.statusCode = 500;
+        error.type = 'database_error';
+        next(error);
     }
 };
 
-exports.updateStock = async (req, res) => {
+exports.updateStock = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { quantity } = req.body;
 
         if (typeof quantity !== 'number' || quantity < 0) {
-            return res.status(400).json({
-                error: 'Quantidade inválida',
+            const error = new Error('Quantidade inválida');
+            error.statusCode = 400;
+            error.type = 'invalid_input';
+            error.clientMessage = 'Quantidade inválida';
+            error.details = {
                 minValue: 0,
                 example: { quantity: 50 }
-            });
+            };
+            return next(error);
         }
 
         const product = await Product.findByPk(id);
 
         if (!product) {
-            return res.status(404).json({ error: 'Produto não encontrado' });
+            const error = new Error('Produto não encontrado');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Produto não encontrado';
+            return next(error);
         }
 
         if (product.producerId !== req.producer.id) {
-            return res.status(403).json({
-                error: 'Acesso negado',
-                details: 'Você não é o produtor deste item'
-            });
+            const error = new Error('Acesso negado');
+            error.statusCode = 403;
+            error.type = 'forbidden';
+            error.clientMessage = 'Você não é o produtor deste item';
+            error.details = 'Acesso negado: Você não é o produtor deste item';
+            return next(error);
         }
 
         product.quantity = quantity;
@@ -78,9 +89,9 @@ exports.updateStock = async (req, res) => {
             error: error.stack
         });
 
-        const { status, message } = handleSequelizeError(error);
-        return res.status(status || 500).json({
-            error: message || 'Falha crítica no sistema'
-        });
+        error.clientMessage = 'Falha ao atualizar estoque';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'database_error';
+        next(error);
     }
 };

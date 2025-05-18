@@ -6,8 +6,8 @@ const orderController = require('../controllers/orderController');
 const deliveryController = require('../controllers/deliveryController');
 
 const authMiddleware = require('../../../middlewares/authMiddleware');
-const consumerMiddleware = require('../../consumer/middlewares/consumerMiddleware');
-const orderOwnershipMiddleware = require('../middlewares/orderOwnershipMiddleware');
+const consumerMiddleware = require('../../../middlewares/consumerMiddleware');
+const orderOwnershipMiddleware = require('../../../middlewares/orderOwnershipMiddleware');
 
 router.post(
     '/',

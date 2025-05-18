@@ -1,4 +1,4 @@
-const { Consumer } = require('../models');
+const { Consumer } = require('../services/user/models/Consumer');
 
 module.exports = async (req, res, next) => {
     try {

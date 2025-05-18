@@ -1,4 +1,4 @@
-const { Order } = require('../../models');
+const { Order } = require('../services/order/models/Order');
 
 const orderOwnershipMiddleware = async (req, res, next) => {
     try {

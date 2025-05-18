@@ -1,7 +1,9 @@
-const { Order, OrderItem, Product, Consumer } = require('../models');
-const { handleSequelizeError } = require('../../../shared/utils/sequelizeErrorHandler');
+const { Order } = require('../models/Order');
+const { OrderItem } = require('../models/OrderItem');
+const { Product } = require('../../product/models/Product');
+const { Consumer } = require('../../user/models/Consumer');
 
-exports.createOrder = async (req, res) => {
+exports.createOrder = async (req, res, next) => {
     try {
         const { consumerId } = req.body;
 
@@ -19,23 +21,36 @@ exports.createOrder = async (req, res) => {
 
     } catch (error) {
         console.log('Erro ao criar pedido:', { error: error.stack });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha ao criar pedido' });
+        error.clientMessage = 'Falha ao iniciar novo pedido';
+        error.statusCode = 500;
+        error.type = 'order_creation_error';
+        next(error);
     }
 };
 
-exports.addItem = async (req, res) => {
+exports.addItem = async (req, res, next) => {
     try {
         const { productId, quantity } = req.body;
 
         const product = await Product.findByPk(productId);
-        if (!product) return res.status(404).json({ error: 'Produto não encontrado' });
+        if (!product) {
+            const error = new Error('Produto não encontrado');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Produto indisponível no momento';
+            return next(error);
+        }
+
         if (product.stockQuantity < quantity) {
-            return res.status(400).json({
-                error: 'Estoque insuficiente',
+            const error = new Error('Estoque insuficiente');
+            error.statusCode = 400;
+            error.type = 'insufficient_stock';
+            error.clientMessage = 'Quantidade solicitada indisponível';
+            error.details = {
                 available: product.stockQuantity,
                 requested: quantity
-            });
+            };
+            return next(error);
         }
 
         await Product.update(
@@ -64,12 +79,14 @@ exports.addItem = async (req, res) => {
             orderId: req.params.orderId,
             error: error.stack
         });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha crítica' });
+        error.clientMessage = 'Falha ao adicionar item ao pedido';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'order_item_error';
+        next(error);
     }
 };
 
-exports.calculateTotal = async (req, res) => {
+exports.calculateTotal = async (req, res, next) => {
     try {
         const { orderId } = req.params;
 
@@ -81,7 +98,11 @@ exports.calculateTotal = async (req, res) => {
         });
 
         if (!order) {
-            return res.status(404).json({ error: 'Pedido não encontrado' });
+            const error = new Error('Pedido não encontrado');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Pedido não localizado';
+            return next(error);
         }
 
         const total = order.OrderItems.reduce((sum, item) =>
@@ -101,12 +122,14 @@ exports.calculateTotal = async (req, res) => {
             orderId: req.params.orderId,
             error: error.stack
         });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha no cálculo' });
+        error.clientMessage = 'Falha no cálculo do total';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'order_calculation_error';
+        next(error);
     }
 };
 
-exports.listOrdersByConsumer = async (req, res) => {
+exports.listOrdersByConsumer = async (req, res, next) => {
     try {
         const orders = await Order.findAll({
             where: { consumerId: req.params.consumerId },
@@ -138,22 +161,35 @@ exports.listOrdersByConsumer = async (req, res) => {
 
     } catch (error) {
         console.log('Erro ao listar pedidos:', { error: error.stack });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha na listagem' });
+        error.clientMessage = 'Falha na listagem de pedidos';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'order_list_error';
+        next(error);
     }
 };
 
-exports.cancelOrder = async (req, res) => {
+exports.cancelOrder = async (req, res, next) => {
     try {
         const order = await Order.findByPk(req.params.id);
 
-        if (!order) return res.status(404).json({ error: 'Pedido não encontrado' });
+        if (!order) {
+            const error = new Error('Pedido não encontrado');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Pedido não localizado';
+            return next(error);
+        }
+
         if (order.status !== 'pendente') {
-            return res.status(400).json({
-                error: 'Pedido não pode ser cancelado',
+            const error = new Error('Pedido não pode ser cancelado');
+            error.statusCode = 400;
+            error.type = 'invalid_operation';
+            error.clientMessage = 'Status atual não permite cancelamento';
+            error.details = {
                 currentStatus: order.status,
                 allowedCancellation: 'Apenas pedidos com status "pendente"'
-            });
+            };
+            return next(error);
         }
 
         await order.update({ status: 'cancelado' });
@@ -164,7 +200,9 @@ exports.cancelOrder = async (req, res) => {
             orderId: req.params.id,
             error: error.stack
         });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha no cancelamento' });
+        error.clientMessage = 'Falha no cancelamento do pedido';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'order_cancellation_error';
+        next(error);
     }
 };

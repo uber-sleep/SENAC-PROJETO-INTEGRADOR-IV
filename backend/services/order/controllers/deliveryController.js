@@ -1,7 +1,6 @@
-const { Delivery } = require('../models');
-const { handleSequelizeError } = require('../../../shared/utils/sequelizeErrorHandler');
+const { Delivery } = require('../models/Delivery');
 
-exports.createDelivery = async (req, res) => {
+exports.createDelivery = async (req, res, next) => {
     try {
         const { orderId, estimatedDate } = req.body;
 
@@ -19,21 +18,28 @@ exports.createDelivery = async (req, res) => {
 
     } catch (error) {
         console.error('Erro ao criar entrega:', error.stack);
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha ao criar entrega' });
+        error.clientMessage = 'Falha no registro da entrega';
+        error.statusCode = 500;
+        error.type = 'delivery_creation_error';
+        error.details = {
+            recovery: 'Verifique os dados do pedido e tente novamente'
+        };
+        next(error);
     }
 };
 
-exports.updateDeliveryStatus = async (req, res) => {
+exports.updateDeliveryStatus = async (req, res, next) => {
     try {
         const { status } = req.body;
         const validStatuses = ['preparando', 'enviado', 'entregue'];
 
         if (!validStatuses.includes(status)) {
-            return res.status(400).json({
-                error: 'Status inválido',
-                validStatuses
-            });
+            const error = new Error('Status inválido');
+            error.statusCode = 400;
+            error.type = 'invalid_input';
+            error.clientMessage = 'Status de entrega não reconhecido';
+            error.details = { validStatuses };
+            return next(error);
         }
 
         const [updated] = await Delivery.update(
@@ -42,7 +48,11 @@ exports.updateDeliveryStatus = async (req, res) => {
         );
 
         if (!updated) {
-            return res.status(404).json({ error: 'Entrega não encontrada' });
+            const error = new Error('Entrega não encontrada');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Registro de entrega não localizado';
+            return next(error);
         }
 
         res.json({
@@ -55,7 +65,9 @@ exports.updateDeliveryStatus = async (req, res) => {
             deliveryId: req.params.id,
             error: error.stack
         });
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({ error: message || 'Falha na atualização' });
+        error.clientMessage = 'Falha na atualização do status';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'delivery_status_error';
+        next(error);
     }
 };

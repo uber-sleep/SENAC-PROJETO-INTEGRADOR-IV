@@ -1,4 +1,5 @@
-const { Producer, User } = require('../models');
+const { User } = require('../services/user/models/User');
+const { Producer } = require('../services/user/models/Producer');
 
 module.exports = async (req, res, next) => {
     try {

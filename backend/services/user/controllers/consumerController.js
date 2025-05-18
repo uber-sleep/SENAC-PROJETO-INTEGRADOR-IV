@@ -1,32 +1,42 @@
-const { Producer, User } = require('../models');
-const { handleSequelizeError } = require('../../../shared/utils/sequelizeErrorHandler');
-const { validateCoordinates } = require('../../../shared/utils/validators/coordinatesValidator');
+const { User } = require('../models/User');
+const { Producer } = require('../models/Producer');
+const { validateCoordinates } = require('../../../utils/validateCoordinates');
 
-exports.findNearbyProducers = async (req, res) => {
+exports.findNearbyProducers = async (req, res, next) => {
     try {
         const { latitude, longitude, radius = 10 } = req.query;
 
         if (latitude || longitude) {
             if (!latitude || !longitude) {
-                return res.status(400).json({
-                    error: 'Ambas coordenadas (latitude e longitude) devem ser fornecidas',
+                const error = new Error('Ambas coordenadas devem ser fornecidas');
+                error.statusCode = 400;
+                error.type = 'invalid_input';
+                error.clientMessage = 'Coordenadas incompletas para busca';
+                error.details = {
                     example: '/nearby-producers?latitude=-23.5505&longitude=-46.6333&radius=5'
-                });
+                };
+                return next(error);
             }
 
             if (!validateCoordinates(latitude, longitude)) {
-                return res.status(400).json({
-                    error: 'Coordenadas inválidas',
+                const error = new Error('Coordenadas inválidas');
+                error.statusCode = 400;
+                error.type = 'invalid_input';
+                error.clientMessage = 'Formato de coordenadas inválido';
+                error.details = {
                     required_format: 'Decimal com ponto (ex: -23.561399)',
                     valid_ranges: { latitude: '-90 a 90', longitude: '-180 a 180' }
-                });
+                };
+                return next(error);
             }
 
             if (isNaN(radius) || radius < 1 || radius > 100) {
-                return res.status(400).json({
-                    error: 'Raio de busca inválido',
-                    valid_range: '1-100 km'
-                });
+                const error = new Error('Raio de busca inválido');
+                error.statusCode = 400;
+                error.type = 'invalid_input';
+                error.clientMessage = 'Raio de busca fora do limite permitido';
+                error.details = { valid_range: '1-100 km' };
+                return next(error);
             }
         }
 
@@ -34,11 +44,11 @@ exports.findNearbyProducers = async (req, res) => {
             include: [{
                 model: User,
                 attributes: ['id', 'name', 'address', 'phone'],
-                where: { active: true }, 
+                where: { active: true },
                 required: true
             }],
-            limit: 50, 
-            order: [[User, 'name', 'ASC']] 
+            limit: 50,
+            order: [[User, 'name', 'ASC']]
         });
 
         const results = producers.map(producer => ({
@@ -52,12 +62,16 @@ exports.findNearbyProducers = async (req, res) => {
         }));
 
         if (results.length === 0) {
-            return res.status(404).json({
-                message: 'Nenhum produtor encontrado',
+            const error = new Error('Nenhum produtor encontrado');
+            error.statusCode = 404;
+            error.type = 'not_found';
+            error.clientMessage = 'Nenhum produtor localizado';
+            error.details = {
                 suggestion: latitude && longitude
                     ? 'Amplie o raio de busca'
                     : 'Cadastre produtores na plataforma'
-            });
+            };
+            return next(error);
         }
 
         res.json({
@@ -72,10 +86,10 @@ exports.findNearbyProducers = async (req, res) => {
 
     } catch (error) {
         console.error('Erro em findNearbyProducers:', error);
-        const { status, message } = handleSequelizeError(error);
-        res.status(status || 500).json({
-            error: message || 'Erro ao buscar produtores',
-            recovery: 'Tente novamente mais tarde'
-        });
+        error.clientMessage = 'Falha na busca de produtores';
+        error.statusCode = error.statusCode || 500;
+        error.type = error.type || 'producer_search_error';
+        error.details = { recovery: 'Tente novamente mais tarde' };
+        next(error);
     }
 };
