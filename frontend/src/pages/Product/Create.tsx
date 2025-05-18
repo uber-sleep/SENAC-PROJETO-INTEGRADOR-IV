@@ -55,13 +55,14 @@ export const CreateProduct = () => {
 
       reset();
       toast.success("O produto foi criado com sucesso.");
+      //eslint-disable-next-line
     } catch (error) {
       toast.error("Ocorreu um erro ao criar o produto.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-200">
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <Card className="shadow-xl">
           <CardHeader className="text-center">

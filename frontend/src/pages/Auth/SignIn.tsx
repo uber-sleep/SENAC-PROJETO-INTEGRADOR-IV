@@ -66,7 +66,7 @@ export const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-200">
+    <div className="min-h-[calc(100vh-72px)] flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <Card className="shadow-xl">
           <CardHeader className="text-center">
