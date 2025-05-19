@@ -60,3 +60,4 @@ Para instruções detalhadas sobre a configuração de cada componente, consulte
 
 - Bruno Barbosa Duarte
 - Maria Carolina Gonçalves da Silva
+- Nicolas Nascimento Barrozo Da Silva
