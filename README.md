@@ -59,4 +59,4 @@ Para instruções detalhadas sobre a configuração de cada componente, consulte
 ## Equipe de Desenvolvimento
 
 - Bruno Barbosa Duarte
-- 
+- Maria Carolina Gonçalves da Silva
