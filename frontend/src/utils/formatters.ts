@@ -44,3 +44,20 @@ export const formatZipCode = (value: string) => {
 export const unformatZipCode = (zipCode: string): string => {
   return zipCode.replace(/\D/g, "").slice(0, 8);
 };
+
+export const formatCurrency = (value: string | number): string => {
+  const numericValue =
+    typeof value === "string" ? value.replace(/\D/g, "") : value.toString();
+  const formatted = (parseInt(numericValue || "0", 10) / 100).toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  );
+
+  return formatted;
+};
+
+export const unformatCurrency = (value: string): string =>
+  value.replace(/[^\d]/g, "");

@@ -46,8 +46,6 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
       userStorage.setUser(responseUser);
       authTokenStorage.setToken(responseToken);
-
-      toast.success("Login realizado com sucesso!");
       //eslint-disable-next-line
     } catch (error) {
       toast.error("Erro ao realizar o login.");

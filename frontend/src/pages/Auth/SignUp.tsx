@@ -1,7 +1,20 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@contexts/Auth";
+
+import {
+  formatDocumentNumber,
+  formatPhone,
+  formatZipCode,
+  unformatDocumentNumber,
+  unformatPhone,
+  unformatZipCode,
+} from "@utils/formatters";
+
+import { countryStates } from "@constants";
 
 import {
   Card,
@@ -19,18 +32,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@components/ui/form";
-import { Input } from "@components/ui/input";
-import { Button } from "@components/ui/button";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
-import {
-  formatDocumentNumber,
-  formatPhone,
-  formatZipCode,
-  unformatDocumentNumber,
-  unformatPhone,
-  unformatZipCode,
-} from "../../utils/formatters";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@components/ui/select";
-import { countryStates } from "../../constants/countryStates";
+import { Input } from "@components/ui/input";
+import { Button } from "@components/ui/button";
 
 type FormSchema = z.infer<typeof formSchema>;
 
@@ -156,7 +158,7 @@ export const SignUp = () => {
   watch("document");
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-50 to-gray-200">
+    <div className="min-h-[calc(100vh-72px)] min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <Card className="shadow-xl">
           <CardHeader className="text-center">
