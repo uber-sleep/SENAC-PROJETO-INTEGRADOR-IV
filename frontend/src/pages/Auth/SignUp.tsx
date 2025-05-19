@@ -146,8 +146,8 @@ export const SignUp = () => {
       phone: `+55${phone}`,
       email,
       password,
-      address: `${street}${adressNumber ? `, ${adressNumber}` : undefined}${
-        addressComplement ? `, ${addressComplement}` : undefined
+      address: `${street}${adressNumber ? `, ${adressNumber}` : ""}${
+        addressComplement ? `, ${addressComplement}` : ""
       } - ${neighborhood}, ${city} - ${state}, ${cep}`,
       role: "producer",
     });
