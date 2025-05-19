@@ -58,9 +58,5 @@ Para instruções detalhadas sobre a configuração de cada componente, consulte
 
 ## Equipe de Desenvolvimento
 
-- [Seu Nome]
-- [Nome dos Colegas]
-
-## Licença
-
-Este projeto está sob a licença [inserir licença].
+- Bruno Barbosa Duarte
+- 
