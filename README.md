@@ -63,3 +63,4 @@ Para instruções detalhadas sobre a configuração de cada componente, consulte
 - Maria Carolina Gonçalves da Silva
 - Nicolas Nascimento Barrozo Da Silva
 - Ariany Alves Dos Anjos Mendes
+- Rafaela Borba Menezes
