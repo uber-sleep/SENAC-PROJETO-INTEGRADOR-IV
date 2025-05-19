@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../../shared/database/sequelize');
+const sequelize = require('../../../config/database');
 const bcrypt = require('bcrypt');
 
-const User = sequelize.define('User', { 
+const User = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -28,6 +28,9 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    paranoid: true, 
+    timestamps: true 
 });
 
 User.beforeCreate(async (user) => {

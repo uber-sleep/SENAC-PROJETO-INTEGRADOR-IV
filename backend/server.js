@@ -1,15 +1,23 @@
-const express = require('express');
-const app = express();
-const PORT = 3000;
+require('dotenv').config();
+const app = require('./config/app');
+const sequelize = require('./config/database');
 
-// Importa as rotas auth
-const authRoutes = require('./services/auth/routes/authRoutes');
+async function startServer() {
+    try {
+        await sequelize.authenticate(); 
+        console.log('Conectado ao banco de dados com sucesso');
 
-app.use(express.json());
+        await sequelize.sync();
+        console.log('Tabelas sincronizadas');
 
-// Usa as rotas /auth (ex: /auth/ping)
-app.use('/auth', authRoutes);
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Servidor rodando em http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Erro ao iniciar o servidor:', error);
+        process.exit(1); 
+    }
+}
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+startServer();
