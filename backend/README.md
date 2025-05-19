@@ -66,10 +66,10 @@ CREATE DATABASE daterra;
 
 ### 4. Configuração do Projeto
 
-1. Clone o repositório (caso ainda não tenha feito):
+1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/daterra.git
-cd daterra/backend
+git clone https://github.com/uber-sleep/SENAC-PROJETO-INTEGRADOR-IV.git
+cd SENAC-PROJETO-INTEGRADOR-IV/backend
 ```
 
 2. Instale as dependências:
@@ -79,7 +79,7 @@ npm install
 
 3. Crie um arquivo `.env` na raiz da pasta backend com as seguintes variáveis:
 ```
-DB_CONNECTION_STRING=mysql://root:sua_senha@localhost:3306/daterra
+DB_URL=mysql://root:sua_senha@localhost:3306/daterra
 JWT_SECRET=suaChaveSecretaParaTokens
 ```
 
@@ -103,33 +103,46 @@ npm start
 
 ```
 backend/
-├── controllers/    # Controladores da aplicação
-├── models/         # Modelos do Sequelize
-├── routes/         # Rotas da API
-├── middleware/     # Middlewares personalizados
-├── config/         # Configurações do banco e outras
+├── config/         # Configurações da aplicação
+│   ├── app.js
+│   ├── auth.js
+│   ├── database.js
+│   └── env.js
+├── docs/           # Documentação
+├── middlewares/    # Middlewares personalizados
+│   ├── authMiddleware.js
+│   ├── errorHandler.js
+│   └── producerMiddleware.js
+├── services/       # Serviços da aplicação
+│   ├── product/    # Serviço de produtos
+│   │   ├── controller/
+│   │   ├── models/
+│   │   └── routes/
+│   └── user/       # Serviço de usuários
+│       ├── controllers/
+│       ├── models/
+│       └── routes/
 ├── .env            # Variáveis de ambiente (não versionado)
+├── .gitignore
+├── package-lock.json
+├── package.json
 └── server.js       # Ponto de entrada da aplicação
 ```
 
 ## API Endpoints
 
 ### Autenticação
-- `POST /api/auth/register` - Cadastro de produtor
-- `POST /api/auth/login` - Login de produtor
+- `POST /auth/sign-up` - Cadastro de produtor
+- `POST /auth/sign-in` - Login de produtor
 
 ### Produtos
-- `POST /api/products` - Cadastrar novo produto
-- `GET /api/products` - Listar produtos
-- `GET /api/products/:id` - Obter detalhes de um produto
-- `PUT /api/products/:id` - Atualizar produto
-- `DELETE /api/products/:id` - Remover produto
+- `POST /products` - Cadastrar novo produto
 
 ## Resolução de Problemas
 
 ### Erro de conexão com o banco de dados
 - Verifique se o serviço MySQL está rodando
-- Confirme se as credenciais no arquivo `.env` estão corretas
+- Confirme se as credenciais no arquivo `.env` estão corretas na variável `DB_URL`
 - Verifique se o banco de dados `daterra` foi criado
 
 ### Erro de permissão no MySQL

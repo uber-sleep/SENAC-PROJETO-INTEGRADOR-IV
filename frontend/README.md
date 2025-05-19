@@ -32,10 +32,10 @@ sudo apt-get install -y nodejs
 
 ### 2. Configuração do Projeto
 
-1. Clone o repositório (caso ainda não tenha feito):
+1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/daterra.git
-cd daterra/frontend
+git clone https://github.com/uber-sleep/SENAC-PROJETO-INTEGRADOR-IV.git
+cd SENAC-PROJETO-INTEGRADOR-IV/frontend
 ```
 
 2. Instale as dependências:
@@ -66,24 +66,33 @@ npm run preview
 
 ```
 frontend/
-├── public/         # Arquivos estáticos
-├── src/
-│   ├── assets/     # Imagens e outros recursos
+├── .vite/          # Arquivos de configuração do Vite
+├── node_modules/   # Dependências do projeto
+├── src/            # Código-fonte da aplicação
 │   ├── components/ # Componentes React reutilizáveis
+│   ├── constants/  # Constantes utilizadas no projeto
 │   ├── contexts/   # Contextos React
-│   ├── hooks/      # Custom hooks
+│   ├── lib/        # Bibliotecas e utilitários
+│   ├── models/     # Definições de modelos/tipos
 │   ├── pages/      # Páginas da aplicação
+│   ├── routes/     # Configuração de rotas
 │   ├── services/   # Serviços de API e integração
-│   ├── styles/     # Estilos globais
-│   ├── types/      # Definições de tipos TypeScript
+│   ├── storage/    # Gerenciamento de armazenamento local
 │   ├── utils/      # Funções utilitárias
 │   ├── App.tsx     # Componente principal
+│   ├── index.css   # Estilos globais
 │   ├── main.tsx    # Ponto de entrada da aplicação
 │   └── vite-env.d.ts # Tipagens do Vite
-├── .eslintrc.json  # Configuração do ESLint
+├── .gitignore      # Arquivos ignorados pelo Git
+├── components.json # Configuração de componentes
+├── eslint.config.js # Configuração do ESLint
 ├── index.html      # Template HTML
-├── tailwind.config.ts # Configuração do Tailwind
-├── tsconfig.json   # Configuração do TypeScript
+├── package-lock.json # Lock de dependências
+├── package.json    # Manifesto do projeto
+├── README.md       # Documentação
+├── tsconfig.app.json # Configuração específica do app
+├── tsconfig.json   # Configuração principal do TypeScript
+├── tsconfig.node.json # Configuração do TypeScript para Node
 └── vite.config.ts  # Configuração do Vite
 ```
 
@@ -91,7 +100,6 @@ frontend/
 
 - Página de registro de produtor
 - Página de login
-- Dashboard do produtor
 - Cadastro de produtos
 
 ## Tecnologias Utilizadas
