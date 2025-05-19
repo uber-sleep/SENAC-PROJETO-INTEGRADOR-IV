@@ -11,11 +11,6 @@ const Producer = sequelize.define('Producer', {
             key: 'id'
         }
     },
-    cpf_cnpj: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false
-    },
     certificate_id: {
         type: DataTypes.STRING
     }

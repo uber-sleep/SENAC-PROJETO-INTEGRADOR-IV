@@ -1,8 +1,18 @@
 import { api } from "@services/api";
-import type { SignInData } from "./types";
+
 import type { User } from "@models";
 
-export const signInRequest = async (data: SignInData): Promise<User> =>
-  api.post("/login", data);
+import type { SignInData, SignUpData } from "./types";
+import type { AxiosResponse } from "axios";
 
-export const signUpRequest = async (): Promise<User> => api.post("/signUp", {});
+const authUrl = "/auth";
+const signUpUrl = `${authUrl}/sign-up`;
+const signInUrl = `${authUrl}/sign-in`;
+
+export const signUpRequest = async (data: SignUpData): Promise<AxiosResponse<User>> =>
+  api.post(signUpUrl, data);
+
+export const signInRequest = async (
+  data: SignInData
+): Promise<AxiosResponse<{ token: string; user: User }>> =>
+  api.post(signInUrl, data);

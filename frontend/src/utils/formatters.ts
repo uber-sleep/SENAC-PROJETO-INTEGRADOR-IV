@@ -46,18 +46,28 @@ export const unformatZipCode = (zipCode: string): string => {
 };
 
 export const formatCurrency = (value: string | number): string => {
-  const numericValue =
-    typeof value === "string" ? value.replace(/\D/g, "") : value.toString();
-  const formatted = (parseInt(numericValue || "0", 10) / 100).toLocaleString(
-    "pt-BR",
-    {
-      style: "currency",
-      currency: "BRL",
-    }
-  );
+  const cents =
+    typeof value === "number"
+      ? value
+      : parseInt(String(value).replace(/\D/g, ""), 10) || 0;
 
-  return formatted;
+  const reais = cents / 100;
+
+  return reais.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 };
 
-export const unformatCurrency = (value: string): string =>
-  value.replace(/[^\d]/g, "");
+export const unformatCurrency = (value: string): string => {
+  return value.replace(/\D/g, "").trim();
+};
+
+export const centsToAmount = (value: number | string): string => {
+  const cents =
+    typeof value === "string"
+      ? parseInt(value.replace(/\D/g, ""), 10) || 0
+      : value;
+
+  return String(cents / 100);
+};

@@ -18,6 +18,7 @@ export type SignUpData = {
   email: string;
   password: string;
   address: string;
+  role: "producer" | "consumer";
 };
 
 export type AuthContextType = {

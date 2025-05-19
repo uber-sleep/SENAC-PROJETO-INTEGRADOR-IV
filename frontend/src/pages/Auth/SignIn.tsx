@@ -53,11 +53,7 @@ export const SignIn = () => {
   });
   const { handleSubmit, control } = form;
 
-  console.log("123123");
-
   const handleSignIn = async (values: FormSchema) => {
-    console.log(values);
-
     await signIn(values);
   };
 
@@ -71,7 +67,9 @@ export const SignIn = () => {
         <Card className="shadow-xl">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Acesse sua conta</CardTitle>
-            <CardDescription>Entre com suas credenciais para continuar.</CardDescription>
+            <CardDescription>
+              Entre com suas credenciais para continuar.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>

@@ -14,6 +14,11 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    cpf_cnpj: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
     email: {
       type: DataTypes.STRING,
       unique: true,
@@ -28,6 +33,10 @@ const User = sequelize.define(
     },
     address: {
       type: DataTypes.STRING,
+      allowNull: false,
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },

@@ -16,6 +16,7 @@ import { userStorage } from "@storage/user";
 
 /* import { signInRequest } from "@contexts/Auth/services"; */
 import { setAuthHeader } from "@services/api";
+import { signInRequest, signUpRequest } from "./services";
 
 export const AuthContext = createContext<AuthContextType>(
   {} as AuthContextType
@@ -31,16 +32,8 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (signInData: SignInData) => {
     try {
-      /* const { data } = await signInRequest(signInData); */
-      const responseData = {
-        user: {
-          id: "1",
-          name: "Teste",
-          email: signInData.email,
-        },
-        token: "token123123123",
-      };
-      const { user: responseUser, token: responseToken } = responseData;
+      const { data } = await signInRequest(signInData);
+      const { user: responseUser, token: responseToken } = data;
 
       setAuthenticatedUser({ user: responseUser, token: responseToken });
 
@@ -55,8 +48,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (signUpData: SignUpData) => {
     try {
       const { email, password } = signUpData;
-      console.log(signUpData);
-      /* const { data } = await signUp(signUpData); */
+
+      await signUpRequest(signUpData);
+
       await signIn({ email, password });
     } catch (error) {
       console.error(error);

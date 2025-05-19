@@ -73,6 +73,7 @@ const formSchema = z
     password: z
       .string()
       .min(1, "A senha é obrigatória.")
+      .min(6, "A senha deve ter pelo menos 6 caracteres.")
       .refine((value) => value.trim().length > 0, {
         message: "A senha não pode conter apenas espaços.",
       }),
@@ -145,9 +146,10 @@ export const SignUp = () => {
       phone: `+55${phone}`,
       email,
       password,
-      address: `${street} ${adressNumber ? `, ${adressNumber}` : undefined} ${
+      address: `${street}${adressNumber ? `, ${adressNumber}` : undefined}${
         addressComplement ? `, ${addressComplement}` : undefined
       } - ${neighborhood}, ${city} - ${state}, ${cep}`,
+      role: "producer",
     });
   };
 

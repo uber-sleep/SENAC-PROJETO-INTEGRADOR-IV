@@ -3,7 +3,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm } from "react-hook-form";
 
-import { formatCurrency, unformatCurrency } from "@utils/formatters";
+import { toast } from "react-toastify";
+
+import { api } from "@services/api";
+
+import {
+  centsToAmount,
+  formatCurrency,
+  unformatCurrency,
+} from "@utils/formatters";
 
 import {
   Card,
@@ -23,8 +31,6 @@ import {
 import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Textarea } from "@components/ui/textarea";
-import { api } from "@services/api";
-import { toast } from "react-toastify";
 
 type FormSchema = z.infer<typeof formSchema>;
 
@@ -50,10 +56,16 @@ export const CreateProduct = () => {
   const { handleSubmit, control, reset } = form;
 
   const handleCreateProduct = async (values: FormSchema) => {
+    console.log(values.price);
+
     try {
-      await api.post("products", { ...values, imageUtf: "" });
+      await api.post("/products", {
+        ...values,
+        price: centsToAmount(values.price),
+      });
 
       reset();
+
       toast.success("O produto foi criado com sucesso.");
       //eslint-disable-next-line
     } catch (error) {
