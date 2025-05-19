@@ -6,18 +6,18 @@ const { body } = require("express-validator");
 router.post(
   "/signup",
   [
-    body("email").isEmail().normalizeEmail(),
+    body("email").isEmail(),
     body("password").isLength({ min: 6 }),
   ],
   authController.signup
 );
 
 router.post(
-  "/login",
+  "/signin",
   [body("email").isEmail(), body("password").notEmpty()],
-  authController.login
+  authController.signin
 );
 
-router.post("/logout", authController.logout);
+router.post("/singout", authController.signout);
 
 module.exports = router;
